@@ -1,4 +1,4 @@
-const mode = 0;
+const mode = 1;
 
 const host_local = "http://localhost:8080";
 const host_remote = "https://c322-lab10-backend-mattpan09.onrender.com";
