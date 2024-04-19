@@ -17,16 +17,32 @@
     </ul>
 
     <div id="pond"></div>
-
+    <script src="configuration.js"></script>
     <script>
-      let host = "http://localhost:8080";
+      let host = getHost();
       let ducks = [];
       displayTheDucks();
 
       async function getAll() {
-        let response = await fetch(host + "/ducks");
-        let result = await response.json();
-        return result;
+        const headers = {
+          "Authorization": `Bearer ${configuration.token()}`
+        };
+        // let response = await fetch(host + "/ducks", { headers });
+        // let result = await response.json();
+        // return result;
+
+        return fetch(host + "/ducks", { headers })
+          .then((response) => {
+            if (response.status == 401) {
+              logout();
+            }
+            return response.json();
+          })
+          .catch((error) => {
+            console.log(error);
+            alert("Something went wrong!");
+            return [];
+        });
       }
 
       async function displayTheDucks() {
@@ -37,6 +53,10 @@
         let pond = document.getElementById("pond");
         pond.innerHTML = "";
 
+        //Get the image of the duck using API and display it
+
+
+        console.log("I am here")
         for (let duck of ducks) {
           let div = document.createElement("div");
           div.className = "flip-card";
@@ -44,7 +64,7 @@
             <div class="flip-card-inner">
               <div class="flip-card-front">
                <img
-                   src="${host}/ducks/${duck.id}/image"
+                   src="${URL.createObjectURL(await getTheImage(duck.id))}"
                    alt="Duck"
                    style="width: 100%"
                 />
@@ -58,6 +78,15 @@
           div.innerHTML = innerHtml;
           pond.appendChild(div);
         }
+      }
+
+      async function getTheImage(duckId) {
+        headers = {
+          "Authorization": `Bearer ${configuration.token()}`
+        };
+        let response = await fetch(host + "/ducks/" + duckId + "/image", { headers });
+        let result = await response.blob();
+        return result;
       }
     </script>
   </body>

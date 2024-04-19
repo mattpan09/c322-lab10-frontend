@@ -23,8 +23,9 @@
       <input type="file" id="imageInput" />
       <button onclick="addTheDuck()">Add the duck</button>
     </div>
+    <script src="configuration.js"></script>
     <script>
-      let host = "http://localhost:8080";
+      let host = getHost();
           async function addTheDuck() {
               let message = "";
                 let duckName = document.getElementById("name").value;
@@ -38,15 +39,21 @@
                 //alert("You entered: id=" + duck.id + " ,type=" + duck.type);
 
                 console.log("You entered:" + JSON.stringify(duck));
+                console.log("Host:" + host);
 
                 let request = {
                   method: "POST",
                   headers: {
-                      "Content-Type": "application/json"
+                      "Content-Type": "application/json",
+                      "Authorization": `Bearer ${configuration.token()}`
                   },
                   body: JSON.stringify(duck)
                 };
                 let response = await fetch(host + "/ducks", request);
+                console.log(response.status)
+                if (response.status == 401) {
+                  logout();
+                }
                 if(response.status == 200) {
                   let id = await response.json();
                   let result = await submitTheImage(id);
@@ -68,6 +75,9 @@
                 formData.append("file", imageInput.files[0]);
                 let request = {
                   method: "POST",
+                  headers: {
+                    "Authorization": `Bearer ${configuration.token()}`
+                  },
                   body: formData
                 };
                 let response = await fetch(host + "/ducks/" + duckId + "/image", request);
